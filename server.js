@@ -1,9 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
+const cookieSession = require('cookie-session')
 const awsParamStore = require( 'aws-param-store' );
-
 
 // invoke an instance of express application.
 var app = express();
@@ -17,16 +16,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // initialize cookie-parser to allow us access the cookies stored in the browser. 
 app.use(cookieParser());
 
-// initialize express-session to allow us track the logged-in user across sessions.
-app.use(session({
-    key: 'user_sid',
-    secret: 'somerandonstuffs',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        expires: 600000
-    }
-}));
+app.use(cookieSession({
+  name: 'session',
+  secret: 'somerandonstuffs',
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 const region = { region: 'us-east-1' };
 
@@ -60,21 +56,10 @@ const knex = require('knex')({
 });
 
 
-// This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
-// This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
-app.use((req, res, next) => {
-
-    console.log('cookices', req.cookies, req.session)
-    if (req.cookies.user_sid && !req.session.user) {
-        res.clearCookie('user_sid');        
-    }
-    next();
-});
-
 
 // middleware function to check for logged-in users
 var sessionChecker = (req, res, next) => {
-    if (req.session.user && req.cookies.user_sid) {
+    if (req.session.user) {
         res.redirect('/dashboard');
     } else {
         next();
@@ -99,18 +84,6 @@ app.route('/signup')
         .then(kek => {
           res.redirect('/login')
         })
-        //User.create({
-            //username: req.body.username,
-            //email: req.body.email,
-            //password: req.body.password
-        //})
-        //.then(user => {
-            //req.session.user = user.dataValues;
-            //res.redirect('/dashboard');
-        //})
-        //.catch(error => {
-            //res.redirect('/signup');
-        //});
     });
 
 
@@ -141,7 +114,7 @@ app.route('/login')
 // route for user's dashboard
 app.get('/dashboard', (req, res) => {
   console.log('session', req.session)
-    if (req.session.user && req.cookies.user_sid) {
+    if (req.session.user) {
         res.sendFile(__dirname + '/public/dashboard.html');
     } else {
         res.redirect('/login');
@@ -151,8 +124,8 @@ app.get('/dashboard', (req, res) => {
 
 // route for user logout
 app.get('/logout', (req, res) => {
-    if (req.session.user && req.cookies.user_sid) {
-        res.clearCookie('user_sid');
+    if (req.session.user) {
+        res.clearCookie('session');
         res.redirect('/');
     } else {
         res.redirect('/login');
@@ -170,7 +143,6 @@ const interval = setInterval(() => {
   knex.schema.hasTable('users').then((exists) => {
     if (exists) {
       // start the express server
-      app.listen(app.get('port'), () => console.log(`App started on port ${app.get('port')}`));
       clearInterval(interval)
     }
   });

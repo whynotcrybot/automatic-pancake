@@ -17,6 +17,7 @@
     "aws-sdk": "^2.285.1",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
+    "cookie-session": "^2.0.0-beta.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "knex": "^0.15.2",
