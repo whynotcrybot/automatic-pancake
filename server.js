@@ -1,8 +1,8 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-//var User = require('./models/user');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const awsParamStore = require( 'aws-param-store' );
 
 
 // invoke an instance of express application.
@@ -28,14 +28,20 @@ app.use(session({
     }
 }));
 
+const region = { region: 'us-east-1' };
+const db_endpoint = awsParamStore.getParameterSync('db_endpoint', region);
+const db_user = awsParamStore.getParameterSync('db_user', region);
+const db_password = awsParamStore.getParameterSync('db_password', region);
+const db_name = awsParamStore.getParameterSync('db_name', region);
+
 const knex = require('knex')({
   client: 'mysql',
   version: '5.6',
   connection: {
-    host : 'localhost',
-    user : 'root',
-    password : 'pass',
-    database : 'pancake'
+    host : db_endpoint,
+    user : db_user,
+    password : db_password,
+    database : db_name,
   }
 });
 
