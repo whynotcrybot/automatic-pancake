@@ -165,5 +165,13 @@ app.use(function (req, res, next) {
   res.status(404).send("Sorry can't find that!")
 });
 
-// start the express server
-app.listen(app.get('port'), () => console.log(`App started on port ${app.get('port')}`));
+const interval = setInterval(() => {
+  console.log('checking table')
+  knex.schema.hasTable('users').then((exists) => {
+    if (exists) {
+      // start the express server
+      app.listen(app.get('port'), () => console.log(`App started on port ${app.get('port')}`));
+      clearInterval(interval)
+    }
+  });
+}, 1000)
