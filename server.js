@@ -143,6 +143,7 @@ const interval = setInterval(() => {
   knex.schema.hasTable('users').then((exists) => {
     if (exists) {
       // start the express server
+      app.listen(app.get('port'), () => console.log(`App started on port ${app.get('port')}`));
       clearInterval(interval)
     }
   });
