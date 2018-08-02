@@ -9,7 +9,7 @@ var session = require('express-session');
 var app = express();
 
 // set our application port
-app.set('port', 8000);
+app.set('port', 80);
 
 // initialize body-parser to parse incoming parameters requests to req.body
 app.use(bodyParser.urlencoded({ extended: true }));
