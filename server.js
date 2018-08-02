@@ -29,7 +29,21 @@ app.use(session({
 }));
 
 const region = { region: 'us-east-1' };
-const db_endpoint = awsParamStore.getParameterSync('db_endpoint', region);
+
+let iserror = true
+let db_endpoint
+
+while (iserror) {
+  try {
+    console.log('trying')
+    db_endpoint = awsParamStore.getParameterSync('db_endpoint', region);
+    iserror = false
+  } catch (e) {
+    iserror = true
+    continue
+  }
+}
+
 const db_user = awsParamStore.getParameterSync('db_user', region);
 const db_password = awsParamStore.getParameterSync('db_password', region);
 const db_name = awsParamStore.getParameterSync('db_name', region);
