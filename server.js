@@ -38,10 +38,10 @@ const knex = require('knex')({
   client: 'mysql',
   version: '5.6',
   connection: {
-    host : db_endpoint,
-    user : db_user,
-    password : db_password,
-    database : db_name,
+    host : db_endpoint.Value,
+    user : db_user.Value,
+    password : db_password.Value,
+    database : db_name.Value,
   }
 });
 
